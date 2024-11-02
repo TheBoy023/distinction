@@ -2,7 +2,7 @@
 session_start(); // Start the session to access session variables
 
 // Database connection
-$conn = new mysqli("localhost", "root", "", "finals");
+$conn = new mysqli("localhost", "u132092183_distinct", "Distinct@2024", "u132092183_distinct");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

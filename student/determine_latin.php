@@ -3,9 +3,9 @@ session_start(); // Start the session to access session variables
 
 // Connect to MySQL
 $servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "finals";
+$username = "u132092183_distinct";
+$password = "Distinct@2024";
+$dbname = "u132092183_distinct";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
