@@ -73,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Dean's List</title>
+    <link rel="icon" href="../img/logobr.png" type="image/x-icon">
     <style>
         body {
             font-family: 'Arial', sans-serif;
