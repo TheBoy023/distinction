@@ -1,27 +1,42 @@
 <?php
-include '../assets/config.php'; // Include your database configuration
+// Start a secure session
+session_start([
+    'cookie_lifetime' => 0,
+    'cookie_httponly' => true,
+    'cookie_secure' => isset($_SERVER['HTTPS']), // Only use secure cookies if using HTTPS
+    'use_strict_mode' => true
+]);
 
-session_start(); // Start the session
+include '../assets/config.php'; // Securely include the database configuration
 
+// Only proceed if the request method is POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $adminName = $_POST['admin_name'];
-    $adminDepartment = $_POST['admin_department'];
-    $password = $_POST['password'];
+    // Validate and sanitize input
+    $adminName = htmlspecialchars(trim($_POST['admin_name']), ENT_QUOTES, 'UTF-8');
+    $adminDepartment = htmlspecialchars(trim($_POST['admin_department']), ENT_QUOTES, 'UTF-8');
+    $password = $_POST['password']; // Password should be handled securely, no trimming or escaping
 
-    // Use prepared statement to prevent SQL injection
+    // Use a prepared statement to prevent SQL injection
     $stmt = $conn->prepare("SELECT * FROM admins WHERE admin_name = ?");
     $stmt->bind_param("s", $adminName);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result && mysqli_num_rows($result) === 1) {
-        $user = mysqli_fetch_assoc($result);
+    if ($result && $result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+
+        // Verify password
         if (password_verify($password, $user['password'])) {
-            // Valid login
+            // Regenerate session ID to prevent session fixation attacks
+            session_regenerate_id(true);
+
+            // Store session variables securely
             $_SESSION['loggedin'] = true;
-            $_SESSION['admin_name'] = $adminName;
-            $_SESSION['admin_department'] = $adminDepartment;
-            header("Location: dashboard.php"); // Redirect to admin dashboard
+            $_SESSION['admin_name'] = $user['admin_name'];
+            $_SESSION['admin_department'] = $user['admin_department'];
+
+            // Redirect to the admin dashboard
+            header("Location: dashboard.php");
             exit();
         } else {
             echo "<script>alert('Invalid password.');</script>";
@@ -29,9 +44,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         echo "<script>alert('Admin user not found.');</script>";
     }
+
+    // Close statement and database connection securely
+    $stmt->close();
 }
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,6 +59,11 @@ $conn->close();
     <title>Admin Login</title>
     <link rel="stylesheet" href="../css/login_admin.css">
     <link rel="icon" href="../img/logobr.png" type="image/x-icon">
+
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 </head>
 <body>
     <!-- Home Icon -->
@@ -59,7 +83,7 @@ $conn->close();
         <!-- Right Section with the Admin Login Form -->
         <div class="right-section">
             <h2>Admin Login</h2>
-            <form action="login.php" method="POST">
+            <form action="login.php" method="POST" autocomplete="off">
                 <input type="text" name="admin_name" placeholder="Admin Name" required><br>
                 <input type="text" name="admin_department" placeholder="Admin Department" required><br>
                 <input type="password" name="password" placeholder="Password" required><br>

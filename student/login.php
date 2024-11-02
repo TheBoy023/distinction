@@ -1,14 +1,23 @@
 <?php
-include '../assets/config.php'; // Ensure this points to the correct config.php
-session_start(); // Start the session
+// Start a secure session with cookies only (disable access via JavaScript)
+session_start([
+    'cookie_lifetime' => 0,
+    'cookie_httponly' => true,
+    'cookie_secure' => isset($_SERVER['HTTPS']), // Only use secure cookies over HTTPS
+    'use_strict_mode' => true
+]);
 
+include '../assets/config.php'; // Securely include the configuration file
+
+// Check if the request method is POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $studentName = $_POST['name'];
-    $studentId = $_POST['student_id']; // No need for mysqli_real_escape_string here
-    $department = $_POST['department'];
-    $password = $_POST['password'];
+    // Validate and sanitize input
+    $studentName = htmlspecialchars(trim($_POST['name']), ENT_QUOTES, 'UTF-8');
+    $studentId = htmlspecialchars(trim($_POST['student_id']), ENT_QUOTES, 'UTF-8');
+    $department = htmlspecialchars(trim($_POST['department']), ENT_QUOTES, 'UTF-8');
+    $password = $_POST['password']; // password should not be sanitized as it's hashed
 
-    // Use prepared statement to prevent SQL injection
+    // Use a prepared statement to prevent SQL injection
     $stmt = $conn->prepare("SELECT * FROM users WHERE student_id = ?");
     $stmt->bind_param("s", $studentId);
     $stmt->execute();
@@ -16,14 +25,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
+        
+        // Verify password using password_verify for secure hashing
         if (password_verify($password, $user['password'])) {
-            // Set session variables
+            // Regenerate session ID to prevent session fixation
+            session_regenerate_id(true);
+
+            // Store session variables
             $_SESSION['loggedin'] = true;
-            $_SESSION['student_id'] = $user['student_id'];  // Store student ID
-            $_SESSION['student_name'] = $user['name'];  // Store student name
+            $_SESSION['student_id'] = $user['student_id'];
+            $_SESSION['student_name'] = $user['name'];
             $_SESSION['department'] = $user['department'];
-            
-            // Redirect to student data management page
+
+            // Redirect to dashboard page
             header("Location: dashboard.php");
             exit();
         } else {
@@ -32,7 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         echo "<script>alert('No account found with this Student ID.');</script>";
     }
-    
+
+    // Close statement and database connection securely
+    $stmt->close();
 }
 $conn->close();
 ?>
@@ -45,10 +61,15 @@ $conn->close();
     <title>Deanslist Login</title>
     <link rel="stylesheet" href="../css/login_student.css">
     <link rel="icon" href="../img/logobr.png" type="image/x-icon">
+
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 </head>
 <body>
     <!-- Home icon -->
-    <a href="../home.php">
+    <a href="../index.php">
         <img src="../img/homeicon.png" alt="Home" class="home-icon">
     </a>
 
@@ -64,7 +85,7 @@ $conn->close();
         <!-- Right section with login form -->
         <div class="right-section">
             <h2>Login to Dean's List</h2>
-            <form action="login.php" method="POST">
+            <form action="login.php" method="POST" autocomplete="off">
                 <input type="text" name="name" id="full-name" placeholder="Full Name" required><br>    
                 <input type="text" name="student_id" id="student-id" placeholder="Student ID" required><br>
                 <input type="text" name="department" id="department" placeholder="Department" required><br>
