@@ -1,0 +1,102 @@
+/* General Styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif; 
+    color: #333;
+    background-color: #fff7e6; 
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff7e6; 
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #800000; 
+    color: #fff;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.logo img {
+    height: 50px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 1rem;
+}
+
+nav ul li {
+    margin: 0;
+}
+
+/* Home Button */
+.home-button {
+    display: inline-block;
+    width: 50px; /* Adjust width as needed */
+    height: 50px; /* Adjust height as needed */
+}
+
+.home-button img {
+    width: 100%;
+    height: auto;
+}
+
+/* Content Section */
+.details-content {
+    padding: 2rem;
+}
+
+.details-card {
+    background-color: #fff;
+    border: 2px solid #ffcc00; 
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.details-card h2 {
+    margin: 0 0 1rem;
+    font-size: 1.8rem;
+    color: #800000; 
+}
+
+.details-card h3 {
+    margin-top: 1rem;
+    font-size: 1.4rem;
+    color: #800000;
+}
+
+.details-card ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+
+.details-card ul li {
+    margin: 0.5rem 0;
+}
+
+/* Footer */
+footer {
+    background-color: #800000;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    margin-top: auto;
+}
+
+.footer-info p {
+    margin: 0;
+    font-size: 0.9rem;
+}

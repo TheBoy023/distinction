@@ -1,0 +1,250 @@
+/* General Styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif; 
+    color: #333;
+    background-color: #fff7e6; 
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff7e6; 
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #800000; 
+    color: #fff;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    animation: fadeInDown 1s ease-out;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Admin Options */
+.admin-options a {
+    color: #fff;
+    margin-right: 1rem;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+}
+
+.admin-options a:hover {
+    color: #ffcc00; 
+    text-decoration: underline;
+}
+
+/* Container */
+.container {
+    display: flex;
+    flex: 1;
+    margin-top: 1rem;
+    animation: fadeIn 1.5s ease-out;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #800000; 
+    color: #fff;
+    border-right: 1px solid #ddd;
+    padding: 1rem;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 1rem 0;
+}
+
+.sidebar ul li a {
+    color: #ffcc00; 
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+}
+
+.sidebar ul li a:hover {
+    color: #ffd633; 
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centering the content */
+}
+
+/* Dashboard Overview */
+.dashboard-overview {
+    margin-bottom: 2rem;
+}
+
+/* Overview Stats Cards */
+.overview-stats {
+    display: flex;
+    justify-content: space-between; /* Evenly space out the cards */
+    align-items: stretch; /* Align the cards to the same height */
+    gap: 1.5rem;
+    flex-wrap: nowrap; /* Prevent wrapping to keep them in a single row */
+    margin-bottom: 2rem;
+}
+
+/* Stat Card */
+.stat-card {
+    background-color: #fff;
+    border: 2px solid #ffcc00; 
+    border-radius: 12px;
+    padding: 3%;
+    flex: 1; /* Allow cards to grow equally */
+    min-width: 200px; /* Ensure a minimum width */
+    height: 200px; /* Match the height to the width */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    margin: 0 10px; /* Add some margin for spacing */
+}
+
+.stat-card:hover {
+    transform: translateY(-10px); 
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: calc(1rem + 0.5vw); /* Adjusted for better fit in square format */
+    color: #800000; 
+}
+
+.stat-card .count {
+    font-size: calc(1.5rem + 1vw); /* Scales with screen size */
+    margin: 0.5rem 0;
+    color: #333;
+}
+
+.stat-card .percentage {
+    font-size: calc(0.8rem + 0.3vw); /* Scales with screen size */
+    color: #800000; 
+}
+
+/* Adjusting text size for "Dean’s List Students for this Semester" container */
+.small-text {
+    font-size: calc(0.8rem + 0.3vw); /* Scales with screen size for readability */
+    margin: 0.3rem 0;
+    color: #333;
+}
+
+/* Honors Breakdown */
+.honors-breakdown {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: calc(0.8rem + 0.3vw); /* Scales for better fit */
+    color: #666;
+}
+
+/* Recent Updates and Upcoming Events */
+.recent-updates, .upcoming-events {
+    margin-bottom: 2rem;
+}
+
+.recent-updates ul, .upcoming-events ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recent-updates li, .upcoming-events li {
+    margin: 0.8rem 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    /* Header */
+    header {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    .logo {
+        font-size: 1.5rem; /* Reduce logo size for smaller screens */
+    }
+
+    .admin-options a {
+        margin-right: 0.5rem; /* Reduce margin for links */
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 100%; /* Make sidebar full width */
+        border-right: none; /* Remove border for smaller screens */
+        padding: 0.5rem; /* Reduce padding */
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: 1rem; /* Reduce padding in main content */
+    }
+
+    /* Overview Stats Cards */
+    .overview-stats {
+        flex-direction: column; /* Stack cards vertically */
+        align-items: center; /* Center the cards */
+        gap: 1rem; /* Adjust gap */
+    }
+
+    /* Stat Card */
+    .stat-card {
+        min-width: 100%; /* Ensure cards take full width */
+        height: auto; /* Allow height to adjust automatically */
+        margin: 0; /* Remove horizontal margin */
+    }
+
+    .stat-card h3 {
+        font-size: calc(1rem + 1vw); /* Slightly increase text size */
+    }
+
+    .stat-card .count {
+        font-size: calc(1.2rem + 1vw); /* Adjust scaling */
+    }
+
+    .stat-card .percentage {
+        font-size: calc(0.7rem + 0.3vw); /* Adjust scaling */
+    }
+
+    /* Adjusting text size for "Dean’s List Students for this Semester" container */
+    .small-text {
+        font-size: calc(0.7rem + 0.3vw); /* Adjust size */
+    }
+
+    /* Honors Breakdown */
+    .honors-breakdown {
+        font-size: calc(0.7rem + 0.2vw); /* Scale for better fit */
+    }
+
+    /* Recent Updates and Upcoming Events */
+    .recent-updates li, .upcoming-events li {
+        font-size: 0.9rem; /* Reduce font size for better readability */
+    }
+}

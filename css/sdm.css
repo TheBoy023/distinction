@@ -1,0 +1,132 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f4;
+    color: maroon;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    margin: 0;
+    padding: 20px; 
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; 
+    max-width: 1200px; 
+}
+
+/* Form Container */
+.form-container {
+    background-color: rgba(128, 0, 0, 0.8); 
+    padding: 30px;
+    border-radius: 16px;
+    width: 45%;
+    color: white;
+    margin-right: 20px; 
+}
+
+h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    text-align: center; 
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid maroon;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+input {
+    background-color: white;
+    color: maroon;
+}
+
+button {
+    background-color: maroon;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: darkred;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center; 
+    margin-top: 15px; 
+}
+
+#add-student {
+    margin-left: 0px; 
+}
+
+/* Records Container */
+.records-container {
+    width: 50%;
+    padding: 30px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+h2.records-title {
+    text-align: center; 
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid maroon;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: maroon;
+    color: white;
+}
+
+td {
+    color: maroon;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.edit, .delete {
+    cursor: pointer;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: maroon;
+}
+
+.edit:hover {
+    background-color: darkred;
+}
+
+.delete:hover {
+    background-color: #ff5555;
+}
