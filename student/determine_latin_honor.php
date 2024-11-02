@@ -1,5 +1,6 @@
 <?php
 session_start(); // Start the session to access session variables
+session_regenerate_id(true); // Regenerate session ID to prevent session fixation
 
 $servername = "localhost";
 $username = "u132092183_distinct";
@@ -14,29 +15,35 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Assuming the user is logged in and their name and ID are stored in session variables
-$studentName = $_SESSION['student_name'] ?? 'Unknown';  // Replace with session key for student name
-$studentId = $_SESSION['student_id'] ?? 'Unknown'; // Replace with session key for student ID
-$department = $_SESSION['department'] ?? 'Unknown'; // Replace with session key for department
+// Retrieve session variables
+$studentName = htmlspecialchars($_SESSION['student_name'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+$studentId = htmlspecialchars($_SESSION['student_id'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+$department = htmlspecialchars($_SESSION['department'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
 
 $message = ""; // Variable to hold the message for the notification
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $course = $_POST['course'];
-    $major = $_POST['major'];
-    $year_level = $_POST['year_level'];
-    $section = $_POST['section'];
-    $program = $_POST['program'];
+    // Validate and sanitize input
+    $course = htmlspecialchars(trim($_POST['course']), ENT_QUOTES, 'UTF-8');
+    $major = htmlspecialchars(trim($_POST['major']), ENT_QUOTES, 'UTF-8');
+    $year_level = filter_var($_POST['year_level'], FILTER_VALIDATE_INT);
+    $section = htmlspecialchars(trim($_POST['section']), ENT_QUOTES, 'UTF-8');
+    $program = htmlspecialchars(trim($_POST['program']), ENT_QUOTES, 'UTF-8');
 
-    // Insert student data into the database without file path
-    $sql = "INSERT INTO latin_honor_students (student_id, student_name, department, course, major, year_level, section, program)
-            VALUES ('$studentId', '$studentName', '$department', '$course', '$major', $year_level, '$section', '$program')";
-
-    if ($conn->query($sql) !== TRUE) {
-        $message = "Error: " . $sql . "<br>" . $conn->error;
+    if ($year_level === false) {
+        $message = "Invalid year level.";
     } else {
-        $message = "Applied for Latin Honor successfully."; // Success message
+        // Use prepared statements to securely insert data
+        $stmt = $conn->prepare("INSERT INTO latin_honor_students (student_id, student_name, department, course, major, year_level, section, program)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssis", $studentId, $studentName, $department, $course, $major, $year_level, $section, $program);
+
+        if ($stmt->execute() !== TRUE) {
+            $message = "Error: " . $stmt->error;
+        } else {
+            $message = "Applied for Latin Honor successfully.";
+        }
+        $stmt->close();
     }
 
     $conn->close();
@@ -162,28 +169,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h1>Application Form</h1>
         <form action="determine_latin_honor.php" method="post">
             <label for="student_id">Student ID:</label>
-            <input type="text" id="student_id" name="student_id" value="<?php echo $studentName; ?>" disabled>
+            <input type="text" id="student_id" name="student_id" value="<?php echo $studentId; ?>" disabled>
 
             <label for="student_name">Student Name:</label>
-            <input type="text" id="student_name" name="student_name" value="<?php echo $studentId; ?>" disabled>
+            <input type="text" id="student_name" name="student_name" value="<?php echo $studentName; ?>" disabled>
 
             <label for="department">Department:</label>
             <input type="text" id="department" name="department" value="<?php echo $department; ?>" disabled>
 
             <label for="course">Course:</label>
-            <input type="text" id="course" name="course" required>
+            <input type="text" id="course" name="course" required maxlength="50">
 
             <label for="major">Major:</label>
-            <input type="text" id="major" name="major" required>
+            <input type="text" id="major" name="major" required maxlength="15">
 
             <label for="year_level">Year Level:</label>
-            <input type="number" id="year_level" name="year_level" required>
+            <input type="number" id="year_level" name="year_level" required min="1" max="4">
 
             <label for="section">Section:</label>
-            <input type="text" id="section" name="section" required>
+            <input type="text" id="section" name="section" required maxlength="1">
 
             <label for="program">Program:</label>
-            <input type="text" id="program" name="program" required>
+            <input type="text" id="program" name="program" required maxlength="6">
 
             <button type="submit">Submit</button>
         </form>
@@ -198,25 +205,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-        // Modal script
         var modal = document.getElementById("myModal");
         var span = document.getElementsByClassName("close")[0];
         var modalMessage = document.getElementById("modal-message");
 
-        // PHP message passed from server
-        var message = "<?php echo $message; ?>";
+        var message = "<?php echo addslashes($message); ?>";
 
         if (message) {
             modalMessage.textContent = message;
             modal.style.display = "block";
         }
 
-        // When the user clicks on <span> (x), close the modal
         span.onclick = function() {
             modal.style.display = "none";
         }
 
-        // When the user clicks anywhere outside of the modal, close it
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";

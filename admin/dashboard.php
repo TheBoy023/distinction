@@ -17,8 +17,6 @@ $db = 'u132092183_distinct';
 $user = 'u132092183_distinct';
 $password = 'Distinct@2024';
 
-
-
 // Create a new PDO instance
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $password);

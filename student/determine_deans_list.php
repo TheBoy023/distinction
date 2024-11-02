@@ -14,57 +14,55 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Assuming the user is logged in and their name and ID are stored in session variables
-$studentName = $_SESSION['student_name'] ?? 'Unknown';  // Replace with session key for student name
-$studentId = $_SESSION['student_id'] ?? 'Unknown'; // Replace with session key for student ID
-$department = $_SESSION['department'] ?? 'Unknown'; // Replace with session key for department
-
-$message = ""; // Variable to hold the message for the notification
+// Assuming session variables are already set
+$studentName = htmlspecialchars($_SESSION['student_name'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+$studentId = htmlspecialchars($_SESSION['student_id'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+$department = htmlspecialchars($_SESSION['department'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
+$message = ""; // Notification message
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $course = $_POST['course'];
-    $major = $_POST['major'];
-    $year_level = $_POST['year_level'];
-    $section = $_POST['section'];
-    $program = $_POST['program'];
-    $semester = $_POST['semester'];
+    // Sanitize and validate inputs
+    $course = substr(trim($_POST['course']), 0, 50);
+    $major = substr(trim($_POST['major']), 0, 50);
+    $year_level = intval($_POST['year_level']);
+    $section = substr(trim($_POST['section']), 0, 20);
+    $program = substr(trim($_POST['program']), 0, 50);
+    $semester = in_array($_POST['semester'], ["First Semester", "Second Semester"]) ? $_POST['semester'] : "Unknown";
     $file_path = "";
 
-    // Directory to store uploaded files
+    // Directory for uploads
     $target_dir = "../admin/student/uploads/";
-
-    // Check if uploads directory exists, if not, create it
     if (!is_dir($target_dir)) {
         mkdir($target_dir, 0755, true);
     }
 
-    // Handle file upload
+    // File upload handling
     if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $target_file = $target_dir . basename($_FILES["file"]["name"]);
-        $file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Only allow PDF and image files
-        if (in_array($file_type, ["pdf", "jpg", "jpeg", "png"])) {
+        $file_type = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
+        if (in_array($file_type, ["pdf", "jpg", "jpeg", "png"]) && $_FILES['file']['size'] <= 2 * 1024 * 1024) {
+            $file_name = basename($_FILES["file"]["name"]);
+            $target_file = $target_dir . $file_name;
             if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
                 $file_path = $target_file;
-                $message = "Applied for Dean's List successfully."; // Success message
+                $message = "Applied for Dean's List successfully.";
             } else {
-                $message = "Error uploading file."; // Error message
+                $message = "Error uploading file.";
             }
         } else {
-            $message = "Only PDF and image files are allowed."; // Error message for invalid file type
+            $message = "Only PDF and image files under 2MB are allowed.";
         }
     }
 
-    // Insert student data into the database
-    $sql = "INSERT INTO deans_list_students (student_id, student_name, department, course, major, year_level, section, program, semester, file_path)
-            VALUES ('$studentId', '$studentName', '$department', '$course', '$major', $year_level, '$section', '$program', '$semester', '$file_path')";
-
-    if ($conn->query($sql) !== TRUE) {
-        $message = "Error: " . $sql . "<br>" . $conn->error;
+    // Insert data using prepared statement
+    $stmt = $conn->prepare("INSERT INTO deans_list_students (student_id, student_name, department, course, major, year_level, section, program, semester, file_path)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssiiss", $studentId, $studentName, $department, $course, $major, $year_level, $section, $program, $semester, $file_path);
+    
+    if (!$stmt->execute()) {
+        $message = "Error: " . $stmt->error;
     }
-
+    $stmt->close();
     $conn->close();
 }
 ?>
@@ -184,13 +182,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <a href="dashboard.php">
         <img src="../img/homeicon.png" alt="Home" class="home-icon">
     </a>
-
     <div class="container">
         <h1>Application Form</h1>
         <form action="determine_deans_list.php" method="post" enctype="multipart/form-data">
             <label for="student_id">Student ID:</label>
             <input type="text" id="student_id" name="student_id" value="<?php echo $studentName; ?>" disabled>
-
+            
             <label for="student_name">Student Name:</label>
             <input type="text" id="student_name" name="student_name" value="<?php echo $studentId; ?>" disabled>
 
@@ -198,19 +195,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" id="department" name="department" value="<?php echo $department; ?>" disabled>
 
             <label for="course">Course:</label>
-            <input type="text" id="course" name="course" required>
+            <input type="text" id="course" name="course" maxlength="50" required>
 
             <label for="major">Major:</label>
-            <input type="text" id="major" name="major" required>
+            <input type="text" id="major" name="major" maxlength="15" required>
 
             <label for="year_level">Year Level:</label>
-            <input type="number" id="year_level" name="year_level" required>
+            <input type="number" id="year_level" name="year_level" min="1" max="4" required>
 
             <label for="section">Section:</label>
-            <input type="text" id="section" name="section" required>
+            <input type="text" id="section" name="section" maxlength="1" required>
 
             <label for="program">Program:</label>
-            <input type="text" id="program" name="program" required>
+            <input type="text" id="program" name="program" maxlength="6" required>
 
             <label for="semester">Semester:</label>
             <select id="semester" name="semester" required>
