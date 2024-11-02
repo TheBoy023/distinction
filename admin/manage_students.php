@@ -2,9 +2,9 @@
 session_start(); // Start the session to access admin information
 
 $servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "finals";
+$username = "u132092183_distinct";
+$password = "Distinct@2024";
+$dbname = "u132092183_distinct";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

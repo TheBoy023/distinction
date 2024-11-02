@@ -13,9 +13,11 @@ $adminDepartment = $_SESSION['admin_department'] ?? 'Unknown';
 
 // Database connection parameters
 $host = 'localhost';
-$db = 'finals';
-$user = 'root';
-$password = '';
+$db = 'u132092183_distinct';
+$user = 'u132092183_distinct';
+$password = 'Distinct@2024';
+
+
 
 // Create a new PDO instance
 try {
