@@ -29,41 +29,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $year_level = $_POST['year_level'];
     $section = $_POST['section'];
     $program = $_POST['program'];
-    $semester = $_POST['semester'];
-    $file_path = "";
 
-    // Directory to store uploaded files
-    $target_dir = "../admin/student/uploads/";
-
-    // Check if uploads directory exists, if not, create it
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0755, true);
-    }
-
-    // Handle file upload
-    if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $target_file = $target_dir . basename($_FILES["file"]["name"]);
-        $file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Only allow PDF and image files
-        if (in_array($file_type, ["pdf", "jpg", "jpeg", "png"])) {
-            if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-                $file_path = $target_file;
-                $message = "Applied for Dean's List successfully."; // Success message
-            } else {
-                $message = "Error uploading file."; // Error message
-            }
-        } else {
-            $message = "Only PDF and image files are allowed."; // Error message for invalid file type
-        }
-    }
-
-    // Insert student data into the database
-    $sql = "INSERT INTO deans_list_students (student_id, student_name, department, course, major, year_level, section, program, semester, file_path)
-            VALUES ('$studentId', '$studentName', '$department', '$course', '$major', $year_level, '$section', '$program', '$semester', '$file_path')";
+    // Insert student data into the database without file path
+    $sql = "INSERT INTO latin_honor_students (student_id, student_name, department, course, major, year_level, section, program)
+            VALUES ('$studentId', '$studentName', '$department', '$course', '$major', $year_level, '$section', '$program')";
 
     if ($conn->query($sql) !== TRUE) {
         $message = "Error: " . $sql . "<br>" . $conn->error;
+    } else {
+        $message = "Applied for Latin Honor successfully."; // Success message
     }
 
     $conn->close();
