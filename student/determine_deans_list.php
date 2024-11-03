@@ -14,55 +14,31 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Assuming session variables are already set
-$studentName = htmlspecialchars($_SESSION['student_name'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
-$studentId = htmlspecialchars($_SESSION['student_id'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
-$department = htmlspecialchars($_SESSION['department'] ?? 'Unknown', ENT_QUOTES, 'UTF-8');
-$message = ""; // Notification message
+// Assuming the user is logged in and their name and ID are stored in session variables
+$studentName = $_SESSION['student_name'] ?? 'Unknown';  // Replace with session key for student name
+$studentId = $_SESSION['student_id'] ?? 'Unknown'; // Replace with session key for student ID
+$department = $_SESSION['department'] ?? 'Unknown'; // Replace with session key for department
+
+$message = ""; // Variable to hold the message for the notification
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize and validate inputs
-    $course = substr(trim($_POST['course']), 0, 50);
-    $major = substr(trim($_POST['major']), 0, 50);
-    $year_level = intval($_POST['year_level']);
-    $section = substr(trim($_POST['section']), 0, 20);
-    $program = substr(trim($_POST['program']), 0, 50);
-    $semester = in_array($_POST['semester'], ["First Semester", "Second Semester"]) ? $_POST['semester'] : "Unknown";
-    $file_path = "";
+    $course = $_POST['course'];
+    $major = $_POST['major'];
+    $year_level = $_POST['year_level'];
+    $section = $_POST['section'];
+    $program = $_POST['program'];
 
-    // Directory for uploads
-    $target_dir = "../admin/student/uploads/";
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0755, true);
+    // Insert student data into the database without file path
+    $sql = "INSERT INTO latin_honor_students (student_id, student_name, department, course, major, year_level, section, program)
+            VALUES ('$studentId', '$studentName', '$department', '$course', '$major', $year_level, '$section', '$program')";
+
+    if ($conn->query($sql) !== TRUE) {
+        $message = "Error: " . $sql . "<br>" . $conn->error;
+    } else {
+        $message = "Applied for Latin Honor successfully."; // Success message
     }
 
-    // File upload handling
-    if (isset($_FILES['file']) && $_FILES['file']['error'] == 0) {
-        $file_type = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
-        if (in_array($file_type, ["pdf", "jpg", "jpeg", "png"]) && $_FILES['file']['size'] <= 2 * 1024 * 1024) {
-            $file_name = basename($_FILES["file"]["name"]);
-            $target_file = $target_dir . $file_name;
-            if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-                $file_path = $target_file;
-                $message = "Applied for Dean's List successfully.";
-            } else {
-                $message = "Error uploading file.";
-            }
-        } else {
-            $message = "Only PDF and image files under 2MB are allowed.";
-        }
-    }
-
-    // Insert data using prepared statement
-    $stmt = $conn->prepare("INSERT INTO deans_list_students (student_id, student_name, department, course, major, year_level, section, program, semester, file_path)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssiiss", $studentId, $studentName, $department, $course, $major, $year_level, $section, $program, $semester, $file_path);
-    
-    if (!$stmt->execute()) {
-        $message = "Error: " . $stmt->error;
-    }
-    $stmt->close();
     $conn->close();
 }
 ?>
