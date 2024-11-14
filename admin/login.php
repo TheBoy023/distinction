@@ -67,7 +67,7 @@ $conn->close();
 </head>
 <body>
     <!-- Home Icon -->
-    <a href="../home.php">
+    <a href="../index.php">
         <img src="../img/homeicon.png" alt="Home" class="home-icon">
     </a>
 
