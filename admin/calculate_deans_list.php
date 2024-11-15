@@ -63,7 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "<script>window.onload = function() { showNotification('{$notification}'); };</script>";
 }
 
-$conn->close();
 ?>
 
 <!DOCTYPE html>
