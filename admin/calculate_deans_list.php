@@ -1,6 +1,6 @@
 <?php
 // Database connection
-$conn = new mysqli("localhost", "u132092183_distinct", "Distinct", "u132092183_distinct");
+$conn = new mysqli("localhost", "u132092183_distinct", "Distinct@2024", "u132092183_distinct");
 
 
 $notification = ""; // Initialize notification variable
