@@ -200,6 +200,15 @@ $conn->close();
             <label for="studentId">Student ID:</label>
             <input type="number" name="student_id" id="studentId" required>
 
+            <label for="studentId">Student Name:</label>
+            <input type="number" name="student_id" id="studentId" required>
+
+            <label for="studentId">Course:</label>
+            <input type="number" name="student_id" id="studentId" required>
+
+            <label for="studentId">Major:</label>
+            <input type="number" name="student_id" id="studentId" required>
+            
             <label for="year_level">Year Level:</label>
             <select id="year_level" name="year_level" required>
                 <option value="First Year">First Year</option>
