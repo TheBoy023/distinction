@@ -181,8 +181,8 @@ try {
             border-radius: 12px;
             padding: 3%;
             flex: 1; /* Allow cards to grow equally */
-            min-width: 200px; /* Ensure a minimum width */
-            height: 200px; /* Match the height to the width */
+            min-width: 225px; /* Ensure a minimum width */
+            height: 225px; /* Match the height to the width */
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
