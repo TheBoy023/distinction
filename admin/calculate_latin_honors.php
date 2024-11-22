@@ -78,18 +78,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .home-icon {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            transition: transform 0.3s ease-in-out;
-        }
-        .home-icon:hover {
-            transform: scale(1.1);
-        }
         h1 {
             color: maroon;
         }
@@ -117,16 +105,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 1.5em;
             color: maroon;
         }
+        .search-bar {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
-    <a href="dashboard.php">
-        <img src="../img/homeicon.png" alt="Home" class="home-icon">
-    </a>
-
     <div class="container">
         <h1>Latin Honor Calculation</h1>
+
+        <div class="search-bar">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <!-- Home Button -->
+                <form action="uploaded_application_latin_honors.php" method="get" style="display: inline;">
+                    <button type="submit">Back</button>
+                </form>
+            </div>
+        </div>
 
         <!-- Form to input student ID -->
         <form method="POST" action="">
