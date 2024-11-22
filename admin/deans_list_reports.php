@@ -23,7 +23,7 @@ if (!$admin_department) {
 }
 
 // Fetch students who qualified for the Dean's List
-$sql = "SELECT student_id, semester, average_grade FROM deans_list_averages WHERE deans_list_status = 'Yes'";
+$sql = "SELECT student_id, student_name, course, major, year_level, semester, average_grade FROM deans_list_averages WHERE deans_list_status = 'Yes'";
 $result = $conn->query($sql);
 
 ?>
@@ -96,6 +96,10 @@ $result = $conn->query($sql);
             <thead>
                 <tr>
                     <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Course</th>
+                    <th>Major</th>
+                    <th>Year Level</th>
                     <th>Semester</th>
                     <th>Average Grade</th>
                 </tr>
@@ -104,6 +108,10 @@ $result = $conn->query($sql);
                 <?php while($row = $result->fetch_assoc()): ?>
                     <tr>
                         <td><?php echo $row['student_id']; ?></td>
+                        <td><?php echo $row['student_name']; ?></td>
+                        <td><?php echo $row['course']; ?></td>
+                        <td><?php echo $row['major']; ?></td>
+                        <td><?php echo $row['year_level']; ?></td>
                         <td><?php echo $row['semester']; ?></td>
                         <td><?php echo $row['average_grade']; ?></td>
                     </tr>

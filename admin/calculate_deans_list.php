@@ -13,6 +13,9 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieve form data
     $student_id = $_POST['student_id'];  // Student ID entered by the user
+    $student_name = $_POST['student_name'];
+    $course = $_POST['course'];
+    $major = $_POST['major'];
     $year_level = $_POST['year_level'];
     $semester = $_POST['semester'];
     $codes = $_POST['code'];
@@ -35,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $grade = floatval($grades[$i]);
 
         // Insert each course record into the courses table
-        $sql = "INSERT INTO calculate_average (student_id, year_level, semester, course_code, subject, description, units, grade) 
-                VALUES ('$student_id', '$year_level', '$semester', '$code', '$subject', '$description', '$unit', '$grade')";
+        $sql = "INSERT INTO calculate_averages (student_id, student_name, course, major, year_level, semester, course_code, subject, description, units, grade) 
+                VALUES ('$student_id', '$student_name', '$course', '$major', '$year_level', '$semester', '$code', '$subject', '$description', '$unit', '$grade')";
 
         if (!$conn->query($sql)) {
             $notification = "Error: " . $sql . "<br>" . $conn->error; // Capture error
@@ -44,8 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Store the average grade and Dean's List status in a separate table
-    $sql_avg = "INSERT INTO deans_list_averages (student_id, year_level, semester, average_grade, deans_list_status) 
-                VALUES ('$student_id', '$year_level', '$semester', '$average_grade', '$deans_list_status')";
+    $sql_avg = "INSERT INTO deans_list_averages (student_id, student_name, course, major, year_level, semester, average_grade, deans_list_status) 
+                VALUES ('$student_id', '$student_name', '$course', '$major', '$year_level', '$semester', '$average_grade', '$deans_list_status')";
 
     if (!$conn->query($sql_avg)) {
         $notification .= "Error storing average grade: " . $conn->error; // Capture error for average grade
