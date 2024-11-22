@@ -160,18 +160,6 @@ $conn->close();
             font-size: 1.1em;
             color: maroon;
         }
-        .home-icon {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            transition: transform 0.3s ease-in-out;
-        }
-        .home-icon:hover {
-            transform: scale(1.1);
-        }
         button {
             padding: 10px 15px;
             margin: 10px 0;
@@ -185,16 +173,25 @@ $conn->close();
         button:hover {
             background-color: darkred; /* Change to a darker shade on hover */
         }
+        .search-bar {
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
-    <a href="dashboard.php">
-        <img src="../img/homeicon.png" alt="Home" class="home-icon">
-    </a>
-
     <div class="container">
+
         <h1>Calculate Average</h1>
+
+        <div class="search-bar">
+            <div style="display: flex; align-items: left; justify-content: left; gap: 10px;">
+                <!-- Home Button -->
+                <form action="uploaded_application_deans_list.php" method="get" style="display: inline;">
+                    <button type="submit">Back</button>
+                </form>
+            </div>
+        </div>
 
         <form action="calculate_deans_list.php" method="POST" id="gradeForm">
             <label for="studentId">Student ID:</label>
