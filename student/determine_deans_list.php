@@ -189,10 +189,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h1>Application Form</h1>
         <form action="determine_deans_list.php" method="post" enctype="multipart/form-data">
             <label for="student_id">Student ID:</label>
-            <input type="text" id="student_id" name="student_id" value="<?php echo $studentName; ?>" disabled>
+            <input type="text" id="student_id" name="student_id" value="<?php echo $studentId; ?>" disabled>
             
             <label for="student_name">Student Name:</label>
-            <input type="text" id="student_name" name="student_name" value="<?php echo $studentId; ?>" disabled>
+            <input type="text" id="student_name" name="student_name" value="<?php echo $studentName; ?>" disabled>
 
             <label for="department">Department:</label>
             <input type="text" id="department" name="department" value="<?php echo $department; ?>" disabled>
