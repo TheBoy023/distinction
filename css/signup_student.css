@@ -1,52 +1,155 @@
-body {
-    background-color: #f0f2f5;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+:root {
+    --primary-color: #800000;
+    --secondary-color: #f0f2f5;
+    --text-color: #333;
+    --input-border-color: #ccc;
+    --input-focus-color: #6a0dad;
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+body {
+    background-color: var(--secondary-color);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
 }
+
 .home-icon {
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
     width: 40px;
     height: 40px;
     cursor: pointer;
+    transition: transform 0.2s ease;
 }
+
+.home-icon:hover {
+    transform: scale(1.1);
+}
+
 .signup-container {
-    width: 400px;
+    width: 100%;
+    max-width: 450px;
     padding: 40px;
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     text-align: center;
+    margin: 20px;
 }
+
 h2 {
-    color: maroon;
-    margin-bottom: 20px;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-weight: 600;
 }
-input[type="text"], input[type="email"], input[type="password"], select {
+
+.error-messages {
+    background-color: #ffebee;
+    color: #d32f2f;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.error {
+    margin: 5px 0;
+}
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+select {
     width: 100%;
     padding: 15px;
     margin: 10px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    border-radius: 8px;
+    border: 2px solid var(--input-border-color);
     font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
 }
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="password"]:focus, 
+select:focus {
+    border-color: var(--input-focus-color);
+    box-shadow: 0 0 0 2px rgba(106, 13, 173, 0.1);
+}
+
 button {
-    background-color: maroon;
+    background-color: var(--primary-color);
     color: white;
     padding: 15px;
     width: 100%;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
     margin-top: 10px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
+
 button:hover {
-    background-color: #800000;
+    background-color: #600000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 480px) {
+    .signup-container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"], 
+    select {
+        padding: 12px;
+    }
+}
+
+/* Accessibility enhancements */
+select:focus,
+input:focus {
+    outline: 2px solid var(--input-focus-color);
+    outline-offset: 2px;
+}
+
+/* Optional: Add a subtle animation to the form */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.signup-container {
+    animation: fadeIn 0.5s ease-out;
 }
