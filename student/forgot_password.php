@@ -41,7 +41,7 @@ function sendResetEmail($email, $reset_token) {
         $mail->SMTPDebug = SMTP::DEBUG_OFF;
 
         // Create a secure reset link with expiration
-        $reset_link = "https://" . $_SERVER['HTTP_HOST'] . "/DEANSLIST/student/reset_password.php?token=" . $reset_token;
+        $reset_link = "https://" . $_SERVER['HTTP_HOST'] . "/DISTINCTION/student/reset_password.php?token=" . $reset_token;
         
         // Recipients
         $mail->setFrom('distinctionhub.online@gmail.com', 'Distinction Support');
@@ -141,7 +141,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password - Student</title>
-    <link rel="stylesheet" href="../css/login_student.css">
+    <link rel="stylesheet" href="../css/login_student.css?v=<?php echo time(); ?>">
     <link rel="icon" href="../img/logobr.png" type="image/x-icon">
 
     <!-- Security headers -->
