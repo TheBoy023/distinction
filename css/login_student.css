@@ -75,13 +75,26 @@ h2 {
     margin-bottom: 20px;
 }
 
-input[type="text"], input[type="password"] {
-    width: 100%;
+input[type="email"], input[type="password"] {
+    width: 85%;
     padding: 20px;
     margin: 10px 0;
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 18px;
+}
+
+.forgot-password-link {
+    display: block;
+    text-align: center;
+    color: maroon;
+    font-size: 16px;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
 }
 
 button {
@@ -161,7 +174,7 @@ button:hover {
         font-size: 28px;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="email"], input[type="password"] {
         padding: 15px; /* Adjust padding for smaller screens */
         font-size: 16px;
     }
@@ -181,7 +194,7 @@ button:hover {
         font-size: 24px;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="email"], input[type="password"] {
         padding: 12px; /* Even smaller padding */
         font-size: 14px;
     }
@@ -194,5 +207,9 @@ button:hover {
     .home-icon {
         width: 30px;
         height: 30px;
+    }
+
+    .forgot-password-link {
+        font-size: 14px;
     }
 }
