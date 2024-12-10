@@ -41,7 +41,7 @@ function sendResetEmail($email, $reset_token) {
         $mail->SMTPDebug = SMTP::DEBUG_OFF;
 
         // Create a secure reset link with expiration
-        $reset_link = "https://" . $_SERVER['HTTP_HOST'] . "/DISTINCTION/student/reset_password.php?token=" . $reset_token;
+        $reset_link = "https://" . $_SERVER['HTTP_HOST'] . "/student/reset_password.php?token=" . $reset_token;
         
         // Recipients
         $mail->setFrom('distinctionhub.online@gmail.com', 'Distinction Support');
