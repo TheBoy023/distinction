@@ -11,33 +11,60 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Assuming the admin is logged in and their ID is stored in the session
-$studentId = $_SESSION['student_id'] ?? null;
+// Assuming the user is logged in and their ID is stored in the session
+$email = $_SESSION['email'] ?? null;
 
-if (!$studentId) {
+if (!$email) {
     die("Unauthorized access. Please login.");
 }
 
-// Fetch the current admin data
-$sql = "SELECT * FROM users WHERE student_id = '$studentId'";
+// Fetch the current user data
+$sql = "SELECT * FROM users WHERE email = '$email'";
 $result = $conn->query($sql);
-$admin = $result->fetch_assoc();
+$user = $result->fetch_assoc();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Update admin account details
     if (isset($_POST['update_account'])) {
-        $studentName = $_POST['name'];
-        $email = $_POST['email'];
+        // Prepare statement to prevent SQL injection
+        $stmt = $conn->prepare("UPDATE users SET student_name=?, student_id=?, email=?, course=?, major=?, year_level=?, section=?, program=? WHERE email=?");
+        
+        // Bind parameters
+        $stmt->bind_param("sssssssss", 
+            $studentName, 
+            $studentId, 
+            $email, 
+            $course, 
+            $major, 
+            $yearlevel, 
+            $section, 
+            $program,
+            $email  // Using email for WHERE clause
+        );
 
-        $update_sql = "UPDATE users SET name='$studentName', email='$email' WHERE student_id='$studentId'";
+        // Retrieve and sanitize inputs
+        $studentName = htmlspecialchars($_POST['student_name']);
+        $studentId = htmlspecialchars($_POST['student_id']);
+        $email = htmlspecialchars($_POST['email']);
+        $course = htmlspecialchars($_POST['course']);
+        $major = htmlspecialchars($_POST['major']);
+        $yearlevel = htmlspecialchars($_POST['year_level']);
+        $section = htmlspecialchars($_POST['section']);
+        $program = htmlspecialchars($_POST['program']);
 
-        if ($conn->query($update_sql) === TRUE) {
-            echo "<div style='color: green; text-align: center;'>Account updated successfully.</div>";
-            // Update session variables if needed
-            $_SESSION['student_name'] = $studentName;
+        // Execute and check for errors
+        if ($stmt->execute()) {
+            if ($stmt->affected_rows > 0) {
+                echo "<div style='color: green; text-align: center;'>Account updated successfully.</div>";
+                // Update session variables if needed
+                $_SESSION['student_name'] = $studentName;
+            } else {
+                echo "<div style='color: red; text-align: center;'>No changes made. Check if data is different.</div>";
+            }
         } else {
-            echo "<div style='color: red; text-align: center;'>Error updating account: " . $conn->error . "</div>";
+            echo "<div style='color: red; text-align: center;'>Error updating account: " . $stmt->error . "</div>";
         }
+
+        $stmt->close();
     }
 
     // Change password
@@ -47,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $confirm_password = $_POST['confirm_password'];
 
         // Verify current password
-        if (password_verify($current_password, $admin['password'])) {
+        if (password_verify($current_password, $user['password'])) {
             if ($new_password === $confirm_password) {
                 // Hash the new password
                 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
@@ -166,10 +193,17 @@ $conn->close();
 
     <h2>Account Details</h2>
 
-    <!-- Form to update admin details -->
+    <!-- Form to update users details -->
     <form method="POST" action="account.php">
-        <input type="text" name="name" value="<?= htmlspecialchars($admin['name']) ?>" required>
-        <input type="text" name="email" value="<?= htmlspecialchars($admin['email']) ?>" required>
+        <input type="text" name="student_name" maxlength="50" value="<?= htmlspecialchars($user['student_name']) ?>" required>
+        <input type="text" name="student_id" maxlength="7" value="<?= htmlspecialchars($user['student_id']) ?>" required>
+        <input type="text" name="email" maxlength="50" value="<?= htmlspecialchars($user['email']) ?>" required>
+        <input type="text" name="course" maxlength="50" value="<?= htmlspecialchars($user['course']) ?>" required>
+        <input type="text" name="major" maxlength="15" value="<?= htmlspecialchars($user['major']) ?>" required>
+        <input type="text" name="year_level" maxlength="10" value="<?= htmlspecialchars($user['year_level']) ?>" required>
+        <input type="text" name="section" maxlength="1" value="<?= htmlspecialchars($user['section']) ?>" required>
+        <input type="text" name="program" maxlength="6" value="<?= htmlspecialchars($user['program']) ?>" required>
+        <input type="text" name="department" value="<?= htmlspecialchars($user['department']) ?>" disabled>
         <button type="submit" name="update_account">Update Account</button>
     </form>
 

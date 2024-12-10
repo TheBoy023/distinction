@@ -1,40 +1,71 @@
 <?php
-session_start(); // Start the session to access session variables
+session_start(); 
 
-// Database connection
-$conn = new mysqli("localhost", "u132092183_distinct", "Distinct@2024", "u132092183_distinct");
+// Secure configuration - move to a separate config file
+require_once '../assets/database.php';
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Validate user is logged in
+if (!isset($_SESSION['email'])) {
+    // Redirect to login page or show an error
+    header('Location: login.php');
+    exit();
 }
 
-$studentName = $_SESSION['student_name'] ?? 'Unknown';  // Replace with session key for student name
-$studentId = $_SESSION['student_id'] ?? 'Unknown'; // Replace with session key for student ID
-$status_message = ""; // Initialize status message
+try {
+    // Use prepared statements for ALL database queries
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_EMULATE_PREPARES => false
+    ]);
 
-// Query to retrieve the student's average grade and Dean's List status
-if ($studentId !== 'Unknown') {
-    $sql = "SELECT average_grade, deans_list_status FROM deans_list_averages WHERE student_id = '$studentId'";
-    $result = $conn->query($sql);
+    // Retrieve student's information using a prepared statement
+    $stmt_user = $pdo->prepare("SELECT student_name, student_id FROM users WHERE email = :email");
+    $stmt_user->bindValue(':email', $_SESSION['email'], PDO::PARAM_STR);
+    $stmt_user->execute();
+    $user_info = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
-    if ($result->num_rows > 0) {
-        // Fetch the student's details
-        $row = $result->fetch_assoc();
-        $average_grade = $row['average_grade'];
-        $deans_list_status = $row['deans_list_status'];
+    // Set default values if user info is not found
+    $studentName = $user_info['student_name'] ?? 'Unknown';
+    $studentId = $user_info['student_id'] ?? 'Unknown';
 
-        // Construct status message
-        $status_message = "Student ID: $studentId<br>";
-        $status_message .= "Average Grade: " . number_format($average_grade, 2) . "<br>";
-        $status_message .= "Dean's List Status: " . ($deans_list_status == "Yes" ? "You're eligible for Dean's List,<br>$studentName<br><br>NOTICE:<br>Congratulations in advance, Technologist!<br>Please wait for the announcement of the awarding ceremony to receive your certificate during the event. Thank you!" : "You're not eligible for Dean's List,<br>$studentName<br><br>Try again next time and study hard, Technologist!");
+    // Initialize status message variable
+    $status_message = '';
+
+    // Check if student ID is valid before querying
+    if ($studentId !== 'Unknown') {
+        // Use prepared statement for grades query
+        $stmt_grades = $pdo->prepare("SELECT average_grade, deans_list_status FROM deans_list_averages WHERE student_id = :student_id");
+        $stmt_grades->bindValue(':student_id', $studentId, PDO::PARAM_STR);
+        $stmt_grades->execute();
+        $grade_info = $stmt_grades->fetch(PDO::FETCH_ASSOC);
+
+        if ($grade_info) {
+            $average_grade = $grade_info['average_grade'];
+            $deans_list_status = $grade_info['deans_list_status'];
+
+            // Construct status message with proper escaping
+            $status_message = sprintf(
+                "Student ID: %s<br>" .
+                "Average Grade: %.2f<br>" .
+                "Dean's List Status: %s",
+                htmlspecialchars($studentId, ENT_QUOTES, 'UTF-8'),
+                $average_grade,
+                $deans_list_status === "Yes" 
+                    ? "You're eligible for Dean's List,<br>" . htmlspecialchars($studentName, ENT_QUOTES, 'UTF-8') . "<br><br>NOTICE:<br>Congratulations in advance, Technologist!<br>Please wait for the announcement of the awarding ceremony to receive your certificate during the event. Thank you!" 
+                    : "You're not eligible for Dean's List,<br>" . htmlspecialchars($studentName, ENT_QUOTES, 'UTF-8') . "<br><br>Try again next time and study hard, Technologist!"
+            );
+        } else {
+            $status_message = "No grade uploaded, apply now for Dean's List Technologist.";
+        }
     } else {
-        $status_message = "No grade uploaded, apply now for Dean's List Technologist.";
+        $status_message = "Invalid or missing Student ID.";
     }
-} else {
-    $status_message = "Invalid or missing Student ID.";
-}
 
-$conn->close();
+} catch (PDOException $e) {
+    // Log the error instead of displaying it
+    error_log('Database error: ' . $e->getMessage());
+    $status_message = "An error occurred while retrieving your information.";
+}
 ?>
 
 <!DOCTYPE html>
@@ -58,10 +89,9 @@ $conn->close();
             margin-bottom: 30px;
         }
 
-        /* Center the table and make it smaller */
         .form-container {
-            max-width: 500px; /* Adjust the width to make it smaller but visible */
-            margin: 0 auto; /* Center the container */
+            max-width: 500px;
+            margin: 0 auto;
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -97,11 +127,11 @@ $conn->close();
             cursor: pointer;
             transition: transform 0.3s ease-in-out;
         }
+
         .home-icon:hover {
             transform: scale(1.1);
         }
 
-        /* Center and style the status message */
         .status-message {
             margin-top: 20px;
             font-size: 1.2em;
@@ -111,7 +141,6 @@ $conn->close();
     </style>
 </head>
 <body>
-
     <a href="dashboard.php">
         <img src="../img/homeicon.png" alt="Home" class="home-icon">
     </a>
@@ -122,7 +151,7 @@ $conn->close();
         <table>
             <tr>
                 <th>Student ID:</th>
-                <td><?php echo $studentId; ?></td>
+                <td><?php echo htmlspecialchars($studentId, ENT_QUOTES, 'UTF-8'); ?></td>
             </tr>
         </table>
 
@@ -132,6 +161,5 @@ $conn->close();
             </div>
         <?php endif; ?>
     </div>
-
 </body>
 </html>

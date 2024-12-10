@@ -14,12 +14,26 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Assuming admin's department is stored in session upon login
-$admin_department = $_SESSION['admin_department'] ?? null; // Get admin's department from session
+// Assuming admin's email is stored in session upon login
+$email = $_SESSION['email'] ?? null;
 
-// Ensure the admin is logged in and their department is set
-if (!$admin_department) {
+// Ensure the admin is logged in
+if (!$email) {
     die("Unauthorized access. Please login.");
+}
+
+// Fetch admin's department using the email
+$dept_query = "SELECT admin_department FROM admins WHERE email = ?";
+$stmt = $conn->prepare($dept_query);
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$dept_result = $stmt->get_result();
+
+if ($dept_result->num_rows > 0) {
+    $admin_row = $dept_result->fetch_assoc();
+    $admin_department = $admin_row['admin_department'];
+} else {
+    die("Department not found for this admin.");
 }
 
 // Fetch students who qualified for the Dean's List

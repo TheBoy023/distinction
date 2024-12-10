@@ -12,43 +12,46 @@ include '../assets/config.php'; // Securely include the database configuration
 // Only proceed if the request method is POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Validate and sanitize input
-    $adminName = htmlspecialchars(trim($_POST['admin_name']), ENT_QUOTES, 'UTF-8');
-    $adminDepartment = htmlspecialchars(trim($_POST['admin_department']), ENT_QUOTES, 'UTF-8');
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
     $password = $_POST['password']; // Password should be handled securely, no trimming or escaping
 
-    // Use a prepared statement to prevent SQL injection
-    $stmt = $conn->prepare("SELECT * FROM admins WHERE admin_name = ?");
-    $stmt->bind_param("s", $adminName);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result && $result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-
-        // Verify password
-        if (password_verify($password, $user['password'])) {
-            // Regenerate session ID to prevent session fixation attacks
-            session_regenerate_id(true);
-
-            // Store session variables securely
-            $_SESSION['loggedin'] = true;
-            $_SESSION['admin_name'] = $user['admin_name'];
-            $_SESSION['admin_department'] = $user['admin_department'];
-
-            // Redirect to the admin dashboard
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            echo "<script>alert('Invalid password.');</script>";
-        }
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<script>alert('Invalid email format.');</script>";
     } else {
-        echo "<script>alert('Admin user not found.');</script>";
-    }
+        // Use a prepared statement to prevent SQL injection
+        $stmt = $conn->prepare("SELECT * FROM admins WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    // Close statement and database connection securely
-    $stmt->close();
+        if ($result && $result->num_rows === 1) {
+            $admin = $result->fetch_assoc();
+
+            // Verify password
+            if (password_verify($password, $admin['password'])) {
+                // Regenerate session ID to prevent session fixation attacks
+                session_regenerate_id(true);
+
+                // Store session variables securely
+                $_SESSION['loggedin'] = true;
+                $_SESSION['email'] = $admin['email'];
+
+                // Redirect to the admin dashboard
+                header("Location: dashboard.php");
+                exit();
+            } else {
+                echo "<script>alert('Invalid password.');</script>";
+            }
+        } else {
+            echo "<script>alert('Admin account not found.');</script>";
+        }
+
+        // Close statement and database connection securely
+        $stmt->close();
+    }
+    $conn->close();
 }
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +70,7 @@ $conn->close();
 </head>
 <body>
     <!-- Home Icon -->
-    <a href="../index.php">
+    <a href="../home.php">
         <img src="../img/homeicon.png" alt="Home" class="home-icon">
     </a>
 
@@ -84,9 +87,9 @@ $conn->close();
         <div class="right-section">
             <h2>Admin Login</h2>
             <form action="login.php" method="POST" autocomplete="off">
-                <input type="text" name="admin_name" placeholder="Admin Name" required><br>
-                <input type="text" name="admin_department" placeholder="Admin Department" required><br>
+                <input type="email" name="email" placeholder="Admin Email" required><br>
                 <input type="password" name="password" placeholder="Password" required><br>
+                <a href="forgot_password.php" class="forgot-password-link">Forgot Password?</a>
                 <button type="submit">Login</button>
             </form>
         </div>

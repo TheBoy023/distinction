@@ -1,46 +1,85 @@
 <?php
-session_start(); // Start the session to access session variables
+session_start(); // Start the session securely
 session_regenerate_id(true); // Regenerate session ID to prevent session fixation
 
-$servername = "localhost";
-$username = "u132092183_distinct";
-$password = "Distinct@2024";
-$dbname = "u132092183_distinct";
+// Database connection details
+$host = 'localhost';
+$db = 'u132092183_distinct';
+$user = 'u132092183_distinct';
+$password = 'Distinct@2024';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    // Prepare a statement to fetch student details
+    $stmt = $pdo->prepare("SELECT 
+        student_name,
+        student_id, 
+        department, 
+        course, 
+        major, 
+        year_level, 
+        section, 
+        program 
+    FROM users 
+    WHERE email = :email");
+    
+    // Bind the email parameter
+    $email = $_SESSION['email']; // Store in a variable for clarity
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    
+    // Execute the query
+    $stmt->execute();
+    
+    // Fetch the student details
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($student) {
+        // Assign fetched details to variables
+        $studentName = $student['student_name'];
+        $studentId = $student['student_id'];
+        $course = $student['course'];
+        $major = $student['major'];
+        $yearlevel = $student['year_level'];
+        $section = $student['section'];
+        $program = $student['program'];
+        $department = $student['department'];
+    } else {
+        // More detailed error message
+        $message = "No student found with the email: " . htmlspecialchars($email);
+    }
+} catch(PDOException $e) {
+    $message = "Error retrieving student details: " . $e->getMessage();
 }
-
-// Assuming the user is logged in and their name and ID are stored in session variables
-$studentName = $_SESSION['student_name'] ?? 'Unknown';  // Replace with session key for student name
-$studentId = $_SESSION['student_id'] ?? 'Unknown'; // Replace with session key for student ID
-$department = $_SESSION['department'] ?? 'Unknown'; // Replace with session key for department
-
-$message = ""; // Variable to hold the message for the notification
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $course = $_POST['course'];
-    $major = $_POST['major'];
-    $year_level = $_POST['year_level'];
-    $section = $_POST['section'];
-    $program = $_POST['program'];
+    try {
+        // Prepare INSERT statement using PDO
+        $stmt = $pdo->prepare("INSERT INTO latin_honor_students 
+            (student_id, student_name, department, course, major, year_level, section, program)
+            VALUES (:student_id, :student_name, :department, :course, :major, :year_level, :section, :program)");
+        
+        // Bind parameters
+        $stmt->bindParam(':student_id', $studentId, PDO::PARAM_STR);
+        $stmt->bindParam(':student_name', $studentName, PDO::PARAM_STR);
+        $stmt->bindParam(':department', $department, PDO::PARAM_STR);
+        $stmt->bindParam(':course', $course, PDO::PARAM_STR);
+        $stmt->bindParam(':major', $major, PDO::PARAM_STR);
+        $stmt->bindParam(':year_level', $yearlevel, PDO::PARAM_STR);
+        $stmt->bindParam(':section', $section, PDO::PARAM_STR);
+        $stmt->bindParam(':program', $program, PDO::PARAM_STR);
 
-    // Insert student data into the database without file path
-    $sql = "INSERT INTO latin_honor_students (student_id, student_name, department, course, major, year_level, section, program)
-            VALUES ('$studentId', '$studentName', '$department', '$course', '$major', $year_level, '$section', '$program')";
-
-    if ($conn->query($sql) !== TRUE) {
-        $message = "Error: " . $sql . "<br>" . $conn->error;
-    } else {
-        $message = "Applied for Latin Honor successfully."; // Success message
+        // Execute the statement
+        if ($stmt->execute()) {
+            $message = "Applied for Latin Honor successfully.";
+        } else {
+            $message = "Error submitting application.";
+        }
+    } catch(PDOException $e) {
+        $message = "Error: " . $e->getMessage();
     }
-
-    $conn->close();
 }
 ?>
 
@@ -50,108 +89,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Latin Honor</title>
+    <link rel="stylesheet" href="../css/determine_latin_honor.css">
     <link rel="icon" href="../img/logobr.png" type="image/x-icon">  
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: maroon;
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-        input:focus, select:focus {
-            border-color: maroon;
-            outline: none;
-        }
-
-        .home-icon {
-            position: absolute;
-            top: 5px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            transition: transform 0.3s ease-in-out;
-        }
-        .home-icon:hover {
-            transform: scale(1.1);
-        }
-
-        button {
-            width: 100%;
-            background-color: maroon;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #800000;
-        }
-
-        /* Modal styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
-        }
-        .modal-content {
-            background-color: white;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 300px;
-            text-align: center;
-            border-radius: 10px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
 
@@ -162,29 +101,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <h1>Application Form</h1>
         <form action="determine_latin_honor.php" method="post">
-            <label for="student_id">Student ID:</label>
-            <input type="text" id="student_id" name="student_id" value="<?php echo $studentId; ?>" disabled>
-
+        <label for="student_id">Student Id:</label>
+            <input type="number" id="student_id" value="<?php echo htmlspecialchars($studentId); ?>" disabled>  
+            
             <label for="student_name">Student Name:</label>
-            <input type="text" id="student_name" name="student_name" value="<?php echo $studentName; ?>" disabled>
+            <input type="text" id="student_name" value="<?php echo htmlspecialchars($studentName); ?>" disabled>
 
             <label for="department">Department:</label>
-            <input type="text" id="department" name="department" value="<?php echo $department; ?>" disabled>
+            <input type="text" id="department" value="<?php echo htmlspecialchars($department); ?>" disabled>
 
             <label for="course">Course:</label>
-            <input type="text" id="course" name="course" required maxlength="50">
+            <input type="text" id="course" value="<?php echo htmlspecialchars($course); ?>" disabled>
 
             <label for="major">Major:</label>
-            <input type="text" id="major" name="major" required maxlength="15">
+            <input type="text" id="major" value="<?php echo htmlspecialchars($major); ?>" disabled>
 
             <label for="year_level">Year Level:</label>
-            <input type="number" id="year_level" name="year_level" required min="1" max="4">
+            <input type="text" id="year_level" value="<?php echo htmlspecialchars($yearlevel); ?>" disabled>
 
             <label for="section">Section:</label>
-            <input type="text" id="section" name="section" required maxlength="1">
+            <input type="text" id="section" value="<?php echo htmlspecialchars($section); ?>" disabled>
 
             <label for="program">Program:</label>
-            <input type="text" id="program" name="program" required maxlength="6">
+            <input type="text" id="program" value="<?php echo htmlspecialchars($program); ?>" disabled>
 
             <button type="submit">Submit</button>
         </form>

@@ -12,14 +12,14 @@ if ($conn->connect_error) {
 }
 
 // Assuming the admin is logged in and their ID is stored in the session
-$adminDepartment = $_SESSION['admin_department'] ?? null;
+$email = $_SESSION['email'] ?? null;
 
-if (!$adminDepartment) {
+if (!$email) {
     die("Unauthorized access. Please login.");
 }
 
 // Fetch the current admin data
-$sql = "SELECT * FROM admins WHERE admin_department = '$adminDepartment'";
+$sql = "SELECT * FROM admins WHERE email = '$email'";
 $result = $conn->query($sql);
 $admin = $result->fetch_assoc();
 
