@@ -151,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <!-- Home icon -->
-    <a href="../home.php">
+    <a href="../index.php">
         <img src="../img/homeicon.png" alt="Home" class="home-icon">
     </a>
 
