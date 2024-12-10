@@ -109,7 +109,7 @@ $conn->close(); // Close the database connection securely
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup | Deanslist</title>
-    <link rel="stylesheet" href="../css/signup_student.css">
+    <link rel="stylesheet" href="../css/signup_student.cssv=<?php echo time(); ?>">
     <link rel="icon" href="../img/logobr.png" type="image/x-icon">
 
     <!-- Security headers -->
